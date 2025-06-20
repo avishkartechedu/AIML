@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Avishkar AIML Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .video-thumbnail {
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      border-radius: 0.75rem;
+      border: 3px solid #3b82f6;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      height: auto;
+    }
+    .video-thumbnail:hover {
+      transform: scale(1.05);
+    }
+    .video-container {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%;
+      overflow: hidden;
+      border-radius: 20px;
+      border: 6px solid #1d4ed8;
+      box-shadow: 0 20px 35px rgba(0, 0, 0, 0.3);
+    }
+    iframe, video.custom-player {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 20px;
+    }
+    .logo-overlay {
+      position: absolute;
+      top: 15px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 6px 14px;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 8px rgba(25, 15, 202, 0.2);
+      font-weight: 600;
+      font-size: 0.9rem;
+      z-index: 1000;
+    }
+    .video-logo-top-right {
+      position: absolute;
+      top: 2px;
+      right: 10px;
+      width: 70px;
+      height: 70px;
+      object-fit: contain;
+      z-index: 1001;
+    }
+    .video-logo-bottom-right {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      background: rgba(255, 255, 255, 0.95);
+      color: #1d4ed8;
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 0.75rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      z-index: 1002;
+    }
+    .progress-bar {
+      height: 1rem;
+      background-color: #e5e7eb;
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+    .progress-bar-inner {
+      height: 100%;
+      background-color: #3b82f6;
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-gray-100 to-blue-50 font-sans" oncontextmenu="return false">
+
+<!-- Navbar -->
+<nav class="bg-white shadow-md py-4 px-6 flex justify-between items-center fixed top-0 left-0 w-full z-50">
+  <h1 class="text-xl md:text-2xl font-bold text-blue-600">Avishkar Tech Solutions</h1>
+  <div class="space-x-3 md:space-x-6 text-sm md:text-base">
+    <button class="text-gray-600 hover:text-blue-600 font-medium">Home</button>
+    <button class="text-gray-600 hover:text-blue-600 font-medium">Quizzes</button>
+    <button class="text-gray-600 hover:text-blue-600 font-medium">Projects</button>
+    <button class="text-gray-600 hover:text-blue-600 font-medium">Job Vacancies</button>
+  </div>
+</nav>
+
+<div class="pt-24">
+
+<!-- Login Section -->
+<div id="loginSection" class="min-h-screen flex flex-col lg:flex-row">
+  <div class="hidden lg:flex flex-col justify-center bg-blue-100 w-full lg:w-1/2 p-8 lg:p-10 space-y-6">
+    <h1 class="text-3xl md:text-4xl font-bold text-blue-800">Welcome to Avishkar</h1>
+    <p class="text-gray-700 text-lg">Master AIML with structured roadmap, video lectures, and downloadable notes.</p>
+    <ul class="list-disc text-gray-700 pl-6 space-y-2">
+      <li><strong>Path:</strong> Python → ML → Deep Learning</li>
+      <li><strong>Extras:</strong> Projects, Roadmaps, Certificates</li>
+    </ul>
+  </div>
+  <div class="flex flex-col justify-center items-center bg-white w-full lg:w-1/2 p-6 md:p-8 shadow-xl rounded-lg">
+    <div class="w-full max-w-md">
+      <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-6 text-center">Login to Continue</h2>
+      <label class="block mb-2 font-medium text-gray-700">Name</label>
+      <input id="name" type="text" class="w-full px-4 py-2 mb-4 border rounded"/>
+      <label class="block mb-2 font-medium text-gray-700">Phone Number</label>
+      <input id="username" type="text" class="w-full px-4 py-2 mb-4 border rounded"/>
+      <label class="block mb-2 font-medium text-gray-700">Password</label>
+      <input id="password" type="password" class="w-full px-4 py-2 mb-4 border rounded"/>
+      <button onclick="login()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Sign In</button>
+      <p id="errorMsg" class="text-red-500 text-sm mt-4 hidden text-center">Invalid credentials.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard" class="hidden p-4 sm:p-6 max-w-7xl mx-auto">
+  <h1 id="greeting" class="text-2xl md:text-4xl font-bold text-center text-blue-700 mb-10"></h1>
+
+  <!-- Video Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8 px-4">
+    <div class="relative bg-white rounded-xl shadow-md p-4 hover:shadow-xl">
+      <img src="https://raw.githubusercontent.com/avishkartechedu/AIML/refs/heads/main/Spam.png" alt="Intro to AIML" class="video-thumbnail" onclick="playCustomVideo('yt', 'Intro to AIML / Dr. Rahul')">
+      <div class="mt-3">
+        <p class="text-lg font-semibold text-gray-800">Intro to AIML</p>
+        <p class="text-sm text-gray-600"><b>Instructor:</b> Dr. Rahul | <b>Duration:</b> 53 min | Beginner</p>
+        <p class="text-sm text-gray-600"><b>Machine learning (ML)</b> is a field of study in artificial intelligence concerned with the development and study of statistical algorithms that can learn from data</p>
+      </div>
+    </div>
+    <div class="relative bg-white rounded-xl shadow-md p-4 hover:shadow-xl">
+      <img src="https://raw.githubusercontent.com/avishkartechedu/AIML/refs/heads/main/After%20the%20intro.png" alt="Python for ML" class="video-thumbnail" onclick="playCustomVideo('1', 'Python for ML / Ms. Aditi')">
+      <div class="mt-3">
+        <p class="text-lg font-semibold text-gray-800">Python for ML</p>
+        <p class="text-sm text-gray-600"><b>Will be uploaded soon</b></p>
+      </div>
+    </div>
+    <div class="relative bg-white rounded-xl shadow-md p-4 hover:shadow-xl">
+      <img src="https://raw.githubusercontent.com/avishkartechedu/AIML/refs/heads/main/After%20the%20intro.png" alt="Model Deployment" class="video-thumbnail" onclick="playCustomVideo('2', 'Model Deployment / Mr. Karan')">
+      <div class="mt-3">
+        <p class="text-lg font-semibold text-gray-800">Model Deployment</p>
+        <p class="text-sm text-gray-600"><b>Will be uploaded soon</b></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Video Player -->
+  <div id="driveVideoContainer" class="video-container hidden mt-6">
+    <img src="https://avishkartechsolutions.com/wp-content/uploads/2025/06/Avishkar-logo-new-1-scaled-768x447.jpg" alt="Logo" class="video-logo-top-right" />
+    <div class="video-logo-bottom-right">- Avishkar</div>
+    <div class="logo-overlay" id="videoTitle">Video Title / Instructor</div>
+    <iframe id="ytPlayer" class="hidden" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen sandbox="allow-same-origin allow-scripts"></iframe>
+    <video id="customPlayer" class="custom-player hidden" controls></video>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="mt-8 px-4">
+    <h3 class="text-sm font-semibold mb-1">Course Progress</h3>
+    <div class="progress-bar">
+      <div id="progressBarInner" class="progress-bar-inner"></div>
+    </div>
+  </div>
+
+  <!-- Notes -->
+  <div class="bg-white shadow-lg rounded-xl p-6 mt-10 mx-4">
+    <h2 class="text-2xl font-semibold text-gray-800 mb-4">📝 AIML Intro Notes</h2>
+    <ul class="list-disc text-gray-700 pl-6 space-y-2">
+      <li>Python Basics, Numpy, Pandas, Sklearn</li>
+      <li>Supervised vs Unsupervised Learning</li>
+      <li>Feature Engineering & Model Evaluation</li>
+      <li><a href="https://www.cs.cmu.edu/~tom/files/MachineLearningTomMitchell.pdf" class="text-blue-500 underline">📥 Download Full Notes PDF</a></li>
+    </ul>
+  </div>
+</div>
+
+<script>
+  let watchedCount = 0;
+  let watchedVideos = [false, false, false];
+
+  function login() {
+    const name = document.getElementById("name").value.trim();
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const expectedPassword = username.substring(0, 5) + "@Avishkar";
+    if (username.length === 10 && password === expectedPassword && name !== "") {
+      document.getElementById("loginSection").classList.add("hidden");
+      document.getElementById("dashboard").classList.remove("hidden");
+      document.getElementById("greeting").innerText = `Welcome, ${name}! 🎓 Start Your AIML Journey`;
+    } else {
+      document.getElementById("errorMsg").classList.remove("hidden");
+    }
+  }
+
+  function playCustomVideo(type, title) {
+    const ytPlayer = document.getElementById("ytPlayer");
+    const customPlayer = document.getElementById("customPlayer");
+    const videoTitle = document.getElementById("videoTitle");
+
+    const urls = {
+      yt: "https://www.youtube-nocookie.com/embed/jGrIAPWVBr0?rel=0&modestbranding=1&controls=1&disablekb=1&fs=0&iv_load_policy=1&autoplay=1",
+      1: "https://drive.google.com/uc?export=download&id=1PGcRvSpWBPaB_kuyapNdFq8Ua1bZvJa5",
+      2: "https://drive.google.com/uc?export=download&id=1PeBCV3i6dDDwnwpmzxPgRzNRaOSSsCkr"
+    };
+
+    ytPlayer.classList.add("hidden");
+    customPlayer.classList.add("hidden");
+
+    videoTitle.textContent = title;
+
+    if (type === "yt") {
+      ytPlayer.src = urls.yt;
+      ytPlayer.classList.remove("hidden");
+    } else {
+      customPlayer.src = urls[type];
+      customPlayer.classList.remove("hidden");
+      customPlayer.play();
+    }
+
+    document.getElementById("driveVideoContainer").classList.remove("hidden");
+    document.getElementById("driveVideoContainer").scrollIntoView({ behavior: "smooth" });
+
+    const idx = type === 'yt' ? 0 : parseInt(type);
+    if (!watchedVideos[idx]) {
+      watchedVideos[idx] = true;
+      watchedCount++;
+      const percentage = Math.floor((watchedCount / watchedVideos.length) * 100);
+      document.getElementById("progressBarInner").style.width = `${percentage}%`;
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("ytPlayer").oncontextmenu = () => false;
+    document.getElementById("customPlayer").oncontextmenu = () => false;
+  });
+</script>
+
+</body>
+</html>
